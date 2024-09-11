@@ -1,16 +1,15 @@
 package com.ing.brokage.brokage_firm.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class AssetId implements Serializable {
     private String customerId;
 
