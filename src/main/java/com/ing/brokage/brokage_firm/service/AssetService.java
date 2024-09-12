@@ -17,8 +17,7 @@ public class AssetService {
 
     private static final String TRY_ASSET = "TRY";
     public Asset depositMoneyAsset(String customerId, BigDecimal size){
-        AssetId assetId = AssetId.builder().customerId(customerId).assetName(TRY_ASSET).build();
-        Asset asset = assetRepository.findById(assetId).orElse(null);
+        Asset asset = assetRepository.findById(new AssetId(customerId, TRY_ASSET)).orElse(null);
         if (asset != null) {
             asset.deposit(size);
             return assetRepository.save(asset);
@@ -27,8 +26,7 @@ public class AssetService {
     }
 
     public Asset withdrawMoneyAsset(String customerId, BigDecimal size){
-        AssetId assetId = AssetId.builder().customerId(customerId).assetName(TRY_ASSET).build();
-        Asset asset = assetRepository.getReferenceById(assetId);
+        Asset asset = assetRepository.findById(new AssetId(customerId, TRY_ASSET)).orElse(null);
         if (asset != null && asset.withdraw(size)) {
             return assetRepository.save(asset);
         }
@@ -38,12 +36,17 @@ public class AssetService {
         Asset asset = Asset.builder().customerId(customerId).assetName(assetName).size(size).usableSize(size).build();
         return assetRepository.save(asset);
     }
-    public boolean updateAsset(String customerId, String assetName, BigDecimal size, BigDecimal usableSize) {
-        AssetId assetId = AssetId.builder().customerId(customerId).assetName(assetName).build();
-        Asset asset = assetRepository.getReferenceById(assetId);
-        asset.setSize(size);
-        asset.setUsableSize(usableSize);
-        return (assetRepository.save(asset) != null);
+
+    public Asset updateAsset(Asset asset) {
+       return assetRepository.save(asset);
+    }
+
+    public Asset getAsset(String customerId, String assetName) {
+        return assetRepository.findById(new AssetId(customerId, assetName)).orElse(null);
+    }
+
+    public Asset getMoneyAsset(String customerId) {
+        return getAsset(customerId, TRY_ASSET);
     }
 
     public List<Asset> listAssets(String customerId) {
