@@ -1,10 +1,8 @@
 package com.ing.brokage.brokage_firm.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -12,6 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 @Entity
 @Table(name = "customer")
 public class Customer {
@@ -24,5 +23,6 @@ public class Customer {
 
     private String passwordHash;
 
+    @CreationTimestamp
     private LocalDateTime created;
 }
