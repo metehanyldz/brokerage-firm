@@ -3,10 +3,8 @@ package com.ing.brokage.brokage_firm.model;
 import com.ing.brokage.brokage_firm.constants.Side;
 import com.ing.brokage.brokage_firm.constants.Status;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,13 +13,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 @Entity
 @Table(name = "orders")
 public class Order {
-    @Id
-    private String customerId;
 
-    private String assetName;
+    @EmbeddedId
+    private OrderId orderId;
 
     private Side orderSide;
 
@@ -31,5 +29,6 @@ public class Order {
 
     private Status status;
 
+    @CreationTimestamp
     private LocalDateTime createDate;
 }
