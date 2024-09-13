@@ -1,5 +1,6 @@
 package com.ing.brokage.brokage_firm.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,11 +13,17 @@ import java.math.BigDecimal;
 @Builder
 @Entity
 @Table(name = "assets")
-@IdClass(AssetId.class)
 public class Asset {
     @Id
-    private String customerId;
-    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "asset_id")
+    private String id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = false)
+    @JsonIgnore
+    private Customer customer;
+
     private String assetName;
 
     private BigDecimal size;

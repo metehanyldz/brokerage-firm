@@ -3,11 +3,10 @@ package com.ing.brokage.brokage_firm.service;
 import com.ing.brokage.brokage_firm.constants.Side;
 import com.ing.brokage.brokage_firm.constants.Status;
 import com.ing.brokage.brokage_firm.model.Asset;
+import com.ing.brokage.brokage_firm.model.Customer;
 import com.ing.brokage.brokage_firm.model.Order;
-import com.ing.brokage.brokage_firm.model.OrderId;
 import com.ing.brokage.brokage_firm.repository.OrderRepository;
 import com.ing.brokage.brokage_firm.request.CreateOrderRequest;
-import com.ing.brokage.brokage_firm.request.DeleteOrderRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
@@ -24,26 +23,34 @@ public class OrderService {
     @Autowired
     AssetService assetService;
 
+    @Autowired
+    CustomerService customerService;
+
     public List<Order> getOrderListForCustomer(String customerId){
-        return orderRepository.findAll(Example.of(Order.builder().orderId(
-                OrderId.builder().customerId(customerId).build()).build()));
+        Customer customer = customerService.getCustomer(customerId);
+        if (customer != null) {
+            return customer.getOrders();
+        }
+        //customer not found exp
+        return null;
     }
 
     @Transactional
-    public boolean deleteOrder(DeleteOrderRequest request) {
-        Order order = orderRepository.findById(request.toOrderId()).orElse(null);
+    public boolean deleteOrder(String orderId) {
+        Order order = orderRepository.findById(orderId).orElse(null);
         if (order == null || !order.getStatus().equals(Status.PENDING)){
             return false;
         }
         Asset customerAssetForOrder = order.getOrderSide().equals(Side.BUY) ?
-                assetService.getMoneyAsset(order.getOrderId().getCustomerId()) :
-                assetService.getAsset(order.getOrderId().getCustomerId(), order.getOrderId().getAssetName());
+                assetService.getMoneyAsset(order.getCustomer().getId()) :
+                assetService.getAsset(order.getCustomer().getId(), order.getAssetName());
         //delete order
         //release usable size accordingly
         customerAssetForOrder.setUsableSize(calculateAssetAfterOrderCancelled(order, customerAssetForOrder));
+        order.setStatus(Status.CANCELLED);
         //transactional
         assetService.updateAsset(customerAssetForOrder);
-        orderRepository.delete(order);
+        orderRepository.save(order);
         return true;
     }
 

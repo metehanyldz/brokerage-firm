@@ -1,7 +1,7 @@
 package com.ing.brokage.brokage_firm.service;
 
 import com.ing.brokage.brokage_firm.model.Asset;
-import com.ing.brokage.brokage_firm.model.AssetId;
+import com.ing.brokage.brokage_firm.model.Customer;
 import com.ing.brokage.brokage_firm.repository.AssetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -17,7 +17,7 @@ public class AssetService {
 
     private static final String TRY_ASSET = "TRY";
     public Asset depositMoneyAsset(String customerId, BigDecimal size){
-        Asset asset = assetRepository.findById(new AssetId(customerId, TRY_ASSET)).orElse(null);
+        Asset asset = getMoneyAsset(customerId);
         if (asset != null) {
             asset.deposit(size);
             return assetRepository.save(asset);
@@ -26,14 +26,14 @@ public class AssetService {
     }
 
     public Asset withdrawMoneyAsset(String customerId, BigDecimal size){
-        Asset asset = assetRepository.findById(new AssetId(customerId, TRY_ASSET)).orElse(null);
+        Asset asset = getMoneyAsset(customerId);
         if (asset != null && asset.withdraw(size)) {
             return assetRepository.save(asset);
         }
         return null;
     }
     public Asset createAsset(String customerId, String assetName, BigDecimal size) {
-        Asset asset = Asset.builder().customerId(customerId).assetName(assetName).size(size).usableSize(size).build();
+        Asset asset = Asset.builder().customer(new Customer(customerId)).assetName(assetName).size(size).usableSize(size).build();
         return assetRepository.save(asset);
     }
 
@@ -42,7 +42,8 @@ public class AssetService {
     }
 
     public Asset getAsset(String customerId, String assetName) {
-        return assetRepository.findById(new AssetId(customerId, assetName)).orElse(null);
+        Example<Asset> assetExample = Example.of(Asset.builder().assetName(assetName).customer(new Customer(customerId)).build());
+        return assetRepository.findOne(assetExample).orElse(null);
     }
 
     public Asset getMoneyAsset(String customerId) {
@@ -50,7 +51,7 @@ public class AssetService {
     }
 
     public List<Asset> listAssets(String customerId) {
-        Example<Asset> assetExample = Example.of(Asset.builder().customerId(customerId).build());
+        Example<Asset> assetExample = Example.of(Asset.builder().customer(new Customer(customerId)).build());
         return assetRepository.findAll(assetExample);
     }
 }

@@ -2,7 +2,6 @@ package com.ing.brokage.brokage_firm.controller;
 
 import com.ing.brokage.brokage_firm.model.Order;
 import com.ing.brokage.brokage_firm.request.CreateOrderRequest;
-import com.ing.brokage.brokage_firm.request.DeleteOrderRequest;
 import com.ing.brokage.brokage_firm.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +21,8 @@ public class OrderController {
     }
 
     @DeleteMapping()
-    public ResponseEntity<Boolean> deleteOrder(@RequestBody DeleteOrderRequest deleteOrderRequest) {
-        return ResponseEntity.ok(orderService.deleteOrder(deleteOrderRequest));
+    public ResponseEntity<Boolean> deleteOrder(@RequestParam String orderId) {
+        return ResponseEntity.ok(orderService.deleteOrder(orderId));
     }
 
     @GetMapping()

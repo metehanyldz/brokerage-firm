@@ -1,5 +1,6 @@
 package com.ing.brokage.brokage_firm.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ing.brokage.brokage_firm.constants.Side;
 import com.ing.brokage.brokage_firm.constants.Status;
 import jakarta.persistence.*;
@@ -18,8 +19,17 @@ import java.time.LocalDateTime;
 @Table(name = "orders")
 public class Order {
 
-    @EmbeddedId
-    private OrderId orderId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "order_id")
+    private String id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = false)
+    @JsonIgnore
+    private Customer customer;
+
+    private String assetName;
 
     private Side orderSide;
 

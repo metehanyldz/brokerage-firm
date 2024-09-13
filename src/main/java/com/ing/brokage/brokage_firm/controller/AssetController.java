@@ -4,11 +4,9 @@ import com.ing.brokage.brokage_firm.model.Asset;
 import com.ing.brokage.brokage_firm.service.AssetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -18,7 +16,14 @@ public class AssetController {
     @Autowired
     private AssetService assetService;
     @GetMapping("/list")
-    public ResponseEntity<List<Asset>> listAssets(@RequestParam(required = true) String customerId) {
+    public ResponseEntity<List<Asset>> listAssets(@RequestParam String customerId) {
         return ResponseEntity.ok(assetService.listAssets(customerId));
+    }
+
+    @PostMapping
+    public ResponseEntity<Asset> createAsset(@RequestParam String customerId,
+                                             @RequestParam String assetName,
+                                             @RequestParam BigDecimal size) {
+        return ResponseEntity.ok(assetService.createAsset(customerId, assetName, size));
     }
 }

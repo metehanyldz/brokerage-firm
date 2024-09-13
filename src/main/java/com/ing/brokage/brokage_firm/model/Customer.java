@@ -1,10 +1,12 @@
 package com.ing.brokage.brokage_firm.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,13 +18,24 @@ import java.time.LocalDateTime;
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "customer_id")
     private String id;
 
     @Column(length=50, nullable = false, unique = true)
     private String userName;
-
+    @JsonIgnore
     private String passwordHash;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Asset> assets;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Order> orders;
 
     @CreationTimestamp
     private LocalDateTime created;
+
+    public Customer(String id) {
+        this.id = id;
+    }
 }

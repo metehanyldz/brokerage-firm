@@ -3,8 +3,8 @@ package com.ing.brokage.brokage_firm.request;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ing.brokage.brokage_firm.constants.Side;
 import com.ing.brokage.brokage_firm.constants.Status;
+import com.ing.brokage.brokage_firm.model.Customer;
 import com.ing.brokage.brokage_firm.model.Order;
-import com.ing.brokage.brokage_firm.model.OrderId;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -35,7 +35,8 @@ public class CreateOrderRequest {
     @JsonIgnore
     public Order toOrder() {
         return Order.builder()
-                .orderId(new OrderId(UUID.randomUUID().toString(), this.getCustomerId(), this.getAssetName()))
+                .customer(new Customer(customerId))
+                .assetName(assetName)
                 .orderSide(this.orderSide)
                 .size(this.size)
                 .price(this.price)
