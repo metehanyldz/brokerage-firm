@@ -15,7 +15,6 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@ToString
 public class CreateOrderRequest {
     private String customerId;
 
@@ -42,5 +41,11 @@ public class CreateOrderRequest {
                 .price(this.price)
                 .status(Status.PENDING)
                 .build();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("customerId: %s assetName: %s orderSide: %s size: %s price: %s",
+                customerId, assetName, orderSide.name(), size, price);
     }
 }

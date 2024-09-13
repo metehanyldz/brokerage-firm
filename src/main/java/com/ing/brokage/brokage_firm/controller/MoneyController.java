@@ -22,8 +22,8 @@ public class MoneyController {
     }
 
     @PostMapping("/withdraw")
-    public ResponseEntity<Asset> withdraw(@RequestParam String customerId, @RequestParam BigDecimal size) {
-        //todo iban
-        return ResponseEntity.ok(assetService.withdrawMoneyAsset(customerId, size));
+    public ResponseEntity<Asset> withdraw(@RequestParam String customerId, @RequestParam BigDecimal size,
+                                          @RequestParam String iban) {
+        return ResponseEntity.ok(assetService.withdrawMoneyAsset(customerId, size, iban));
     }
 }

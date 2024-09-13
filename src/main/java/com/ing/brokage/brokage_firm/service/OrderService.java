@@ -2,19 +2,22 @@ package com.ing.brokage.brokage_firm.service;
 
 import com.ing.brokage.brokage_firm.constants.Side;
 import com.ing.brokage.brokage_firm.constants.Status;
+import com.ing.brokage.brokage_firm.exceptions.BaseException;
 import com.ing.brokage.brokage_firm.model.Asset;
 import com.ing.brokage.brokage_firm.model.Customer;
 import com.ing.brokage.brokage_firm.model.Order;
 import com.ing.brokage.brokage_firm.repository.OrderRepository;
 import com.ing.brokage.brokage_firm.request.CreateOrderRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+
+import static com.ing.brokage.brokage_firm.util.AssetUtil.MONEY_ASSET;
 
 @Service
 public class OrderService {
@@ -31,44 +34,47 @@ public class OrderService {
         if (customer != null) {
             return customer.getOrders();
         }
-        //customer not found exp
-        return null;
+        throw new BaseException(String.format("Customer not found for id: %s", customerId), HttpStatus.NOT_FOUND);
     }
 
     @Transactional
-    public boolean deleteOrder(String orderId) {
+    public void deleteOrder(String orderId) {
         Order order = orderRepository.findById(orderId).orElse(null);
         if (order == null || !order.getStatus().equals(Status.PENDING)){
-            return false;
+            throw new BaseException(String.format("Order not found for orderId: %s", orderId), HttpStatus.NOT_FOUND);
         }
         Asset customerAssetForOrder = order.getOrderSide().equals(Side.BUY) ?
                 assetService.getMoneyAsset(order.getCustomer().getId()) :
                 assetService.getAsset(order.getCustomer().getId(), order.getAssetName());
-        //delete order
+
         //release usable size accordingly
         customerAssetForOrder.setUsableSize(calculateAssetAfterOrderCancelled(order, customerAssetForOrder));
+        //make order status cancelled
         order.setStatus(Status.CANCELLED);
         //transactional
         assetService.updateAsset(customerAssetForOrder);
         orderRepository.save(order);
-        return true;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Order createOrder(CreateOrderRequest request) {
+        String customerId = request.getCustomerId();
+        String assetNameToValidate = request.getOrderSide().equals(Side.BUY) ? MONEY_ASSET : request.getAssetName();
         //check order applicable
-        Asset customerAssetForOrder = request.getOrderSide().equals(Side.BUY) ?
-                assetService.getMoneyAsset(request.getCustomerId()) :
-                assetService.getAsset(request.getCustomerId(), request.getAssetName());
+        Asset customerAssetForOrder = assetService.getAsset(customerId, assetNameToValidate);
 
         if (customerAssetForOrder == null) {
-            //asset not exist exception
-            return null;
+            String assetNotFoundError = String.format("Asset: %s not found for customer: %s", assetNameToValidate,
+                    customerId);
+
+            throw new BaseException(assetNotFoundError, HttpStatus.NOT_FOUND);
         }
+
         BigDecimal assetUsableSizeAfterOrder = calculateAssetAfterOrder(request, customerAssetForOrder);
         if (assetUsableSizeAfterOrder.compareTo(BigDecimal.ZERO) < 0) {
-            //insufficient asset exception
-            return null;
+            String insufficientAssetError = String.format("Customer asset: %s insufficient for order request: %s",
+                    assetNameToValidate, request);
+            throw new BaseException(insufficientAssetError, HttpStatus.NOT_ACCEPTABLE);
         }
         customerAssetForOrder.setUsableSize(assetUsableSizeAfterOrder);
         assetService.updateAsset(customerAssetForOrder);

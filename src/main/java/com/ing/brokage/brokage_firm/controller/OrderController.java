@@ -21,8 +21,9 @@ public class OrderController {
     }
 
     @DeleteMapping()
-    public ResponseEntity<Boolean> deleteOrder(@RequestParam String orderId) {
-        return ResponseEntity.ok(orderService.deleteOrder(orderId));
+    public ResponseEntity<ResponseEntity.BodyBuilder> deleteOrder(@RequestParam String orderId) {
+        orderService.deleteOrder(orderId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping()
