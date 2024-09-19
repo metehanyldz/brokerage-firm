@@ -11,6 +11,7 @@ public class CustomerService {
 
     @Autowired
     private CustomerRepository customerRepository;
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     public Customer signupCustomer(String username, String password){
