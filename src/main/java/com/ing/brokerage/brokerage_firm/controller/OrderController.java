@@ -3,10 +3,10 @@ package com.ing.brokerage.brokerage_firm.controller;
 import com.ing.brokerage.brokerage_firm.model.Order;
 import com.ing.brokerage.brokerage_firm.request.CreateOrderRequest;
 import com.ing.brokerage.brokerage_firm.service.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -16,7 +16,7 @@ public class OrderController {
     @Autowired
     OrderService orderService;
     @PostMapping()
-    public ResponseEntity<Order> createOrder(@RequestBody CreateOrderRequest createOrderRequest) {
+    public ResponseEntity<Order> createOrder(@RequestBody @Valid CreateOrderRequest createOrderRequest) {
         return ResponseEntity.ok(orderService.createOrder(createOrderRequest));
     }
 

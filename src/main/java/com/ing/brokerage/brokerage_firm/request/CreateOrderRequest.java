@@ -5,6 +5,8 @@ import com.ing.brokerage.brokerage_firm.constants.Side;
 import com.ing.brokerage.brokerage_firm.constants.Status;
 import com.ing.brokerage.brokerage_firm.model.Customer;
 import com.ing.brokerage.brokerage_firm.model.Order;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 import java.math.BigDecimal;
@@ -20,7 +22,10 @@ public class CreateOrderRequest {
 
     private BigDecimal size;
 
+    @NotNull
+    @Positive
     private BigDecimal price;
+
 
     @JsonIgnore
     public BigDecimal getTotalPrice() {
