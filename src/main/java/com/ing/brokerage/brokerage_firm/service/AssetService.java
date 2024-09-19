@@ -38,7 +38,8 @@ public class AssetService {
         throw new BaseException("Insufficient funds", HttpStatus.NOT_ACCEPTABLE);
     }
     public Asset createAsset(String customerId, String assetName, BigDecimal size) {
-        Asset asset = Asset.builder().customer(new Customer(customerId)).assetName(assetName).size(size).usableSize(size).build();
+        Asset asset = Asset.builder().customer(new Customer(customerId)).assetName(assetName).size(size)
+                .usableSize(size).build();
         return assetRepository.save(asset);
     }
 
@@ -47,8 +48,13 @@ public class AssetService {
     }
 
     public Asset getAsset(String customerId, String assetName) {
-        return customerService.getCustomer(customerId).getAssets().stream()
-                .filter(customerAsset -> customerAsset.getAssetName().equals(assetName)).findAny().orElse(null);
+        Customer customer = customerService.getCustomer(customerId);
+        if (customer != null) {
+            return customerService.getCustomer(customerId).getAssets().stream()
+                    .filter(customerAsset -> customerAsset.getAssetName().equals(assetName)).findAny()
+                    .orElse(null);
+        }
+        return null;
     }
 
     public Asset getMoneyAsset(String customerId) {
